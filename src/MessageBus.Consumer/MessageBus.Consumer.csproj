@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-MessageBus_Consumer-3a183711-28b9-4c82-8cb0-b0535649c381</UserSecretsId>
-    <RootNamespace>MessageBus_Consumer</RootNamespace>
+    <RootNamespace>MessageBus.Consumer</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

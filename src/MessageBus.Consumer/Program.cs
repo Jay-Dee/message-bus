@@ -1,4 +1,4 @@
-using MessageBus_Consumer;
+using MessageBus.Consumer;
 
 var builder = Host.CreateApplicationBuilder(args);
 builder.Services.AddHostedService<Worker>();

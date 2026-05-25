@@ -44,7 +44,7 @@ services:
   consumer-worker:
       build:
         context: . # Crucial: Look at root to see src/MessageBus.Contracts
-        dockerfile: src/MessageBus-Consumer/Dockerfile
+        dockerfile: src/MessageBus.Consumer/Dockerfile
       container_name: consumer-worker-app
       environment:
         - KafkaSettings__BootstrapServers=kafka:29092
