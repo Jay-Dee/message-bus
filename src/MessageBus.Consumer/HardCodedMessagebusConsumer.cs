@@ -2,9 +2,11 @@ namespace MessageBus.Consumer;
 
 using System.Threading;
 using Confluent.Kafka;
+using Confluent.Kafka.Admin;
 
 public class HardCodedMessageBusConsumer : IMessageBusConsumer
 {
+    private const string Topic = "messagebus-demo-topic";
     private readonly ConsumerConfig config;
     private IConsumer<string, string> consumer;
     private readonly ILogger<HardCodedMessageBusConsumer> logger;
@@ -35,8 +37,25 @@ public class HardCodedMessageBusConsumer : IMessageBusConsumer
                 if (metadata != null && metadata.Brokers.Count > 0)
                 {
                     logger.LogInformation("Kafka server discovered successfully with {Count} brokers.", metadata.Brokers.Count);
+                    bool topicAlreadyExists = metadata.Topics.Any(t => t.Topic == Topic);
+                    if (!topicAlreadyExists)
+                    {
+                        logger.LogInformation("Topic '{Topic}' does not exist. Creating topic...", Topic);
+                        try
+                        {
+                            await adminClient.CreateTopicsAsync(new TopicSpecification[]
+                            {
+                                new TopicSpecification { Name = Topic, NumPartitions = 1, ReplicationFactor = 1 }
+                            });
+                            logger.LogInformation("Topic '{Topic}' created successfully.", Topic);
+                        }
+                        catch (CreateTopicsException ex) when (ex.Results.Any(r => r.Error.Code == ErrorCode.TopicAlreadyExists))
+                        {
+                            logger.LogInformation("Topic '{Topic}' already exists. Continuing...", Topic);
+                        }
+                    }
                     consumer = new ConsumerBuilder<string, string>(config).Build();
-                    consumer.Subscribe("messagebus-demo-topic");
+                    consumer.Subscribe(Topic);
                     return true; // Connection test passed
                 }
                 logger.LogInformation("Successfully connected to Kafka broker.");
