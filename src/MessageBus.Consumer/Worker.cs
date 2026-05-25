@@ -1,15 +1,17 @@
 namespace MessageBus.Consumer;
 
-public class Worker(ILogger<Worker> logger) : BackgroundService
+public class Worker(IMessageBusConsumer consumer, ILogger<Worker> logger) : BackgroundService
 {
+    private readonly IMessageBusConsumer consumer = consumer;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+        timeoutCts.CancelAfter(TimeSpan.FromSeconds(5));
         while (!stoppingToken.IsCancellationRequested)
         {
-            if (logger.IsEnabled(LogLevel.Information))
-            {
-                logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
-            }
+            logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
+            await consumer.ConsumeAsync(timeoutCts.Token);
             await Task.Delay(5000, stoppingToken);
         }
     }
