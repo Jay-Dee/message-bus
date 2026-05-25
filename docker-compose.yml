@@ -41,6 +41,18 @@ services:
     networks:
       - kafka-network
 
+  consumer-worker:
+      build:
+        context: . # Crucial: Look at root to see src/MessageBus.Contracts
+        dockerfile: src/MessageBus-Consumer/Dockerfile
+      container_name: consumer-worker-app
+      environment:
+        - KafkaSettings__BootstrapServers=kafka:29092
+      depends_on:
+        - kafka
+      networks:
+        - kafka-network
+
 networks:
   kafka-network:
     driver: bridge
