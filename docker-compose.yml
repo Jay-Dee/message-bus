@@ -63,7 +63,10 @@ services:
         context: . # Crucial: Look at root to see src/MessageBus.Contracts
         dockerfile: src/MessageBus.Producer/Dockerfile
       container_name: messagebus-producer-app
+      ports:
+      - "5000:8080" 
       environment:
+        - ASPNETCORE_ENVIRONMENT=Development
         - KafkaSettings__BootstrapServers=kafka:29092
       depends_on:
         kafka:

@@ -1,5 +1,6 @@
 using MessageBus.Producer.Features.MessageGeneration;
 using Microsoft.OpenApi;
+using Confluent.Kafka;
 
 public partial class Program
 {
@@ -12,6 +13,12 @@ public partial class Program
         builder.Services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new OpenApiInfo { Title = "MessageBus Producer", Version = "v1" });
+        });
+
+        builder.Services.AddSingleton(sp =>
+        {
+            var config = new ProducerConfig { BootstrapServers = "kafka:29092", };
+            return new ProducerBuilder<string, string>(config).Build();
         });
 
         var app = builder.Build();
