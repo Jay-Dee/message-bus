@@ -27,7 +27,32 @@ public static class MessageGenerationEndpoints
         {
             var logger = loggerFactory.CreateLogger("MessageGeneration");
             logger.LogInformation("Received request to generate {NumberOfMessages} messages with an interval of {IntervalInSeconds} seconds.", request.NumberOfMessages, request.IntervalInSeconds);
-
+            if(request.NumberOfMessages <= 0 || request.IntervalInSeconds < 0)
+            {
+                logger.LogWarning("Invalid request parameters: NumberOfMessages={NumberOfMessages}, IntervalInSeconds={IntervalInSeconds}", request.NumberOfMessages, request.IntervalInSeconds);
+                return Results.BadRequest("NumberOfMessages must be greater than 0 and IntervalInSeconds must be non-negative.");
+            }
+            else
+            {
+                // Simulate asynchronous message generation and sending to the message bus
+                _ = Task.Run(async () =>
+                {
+                    for (int i = 0; i < request.NumberOfMessages; i++)
+                    {
+                        var message = new
+                        {
+                            Id = Guid.NewGuid(),
+                            Timestamp = DateTime.UtcNow,
+                            SequenceNumber = i + 1
+                        };
+                        var messageJson = JsonSerializer.Serialize(message);
+                        logger.LogInformation("Generated message {SequenceNumber}: {MessageJson}", message.SequenceNumber, messageJson);
+                        // Simulate sending to message bus (e.g., Kafka)
+                        await Task.Delay(request.IntervalInSeconds * 1000);
+                    }
+                    logger.LogInformation("Completed generating {NumberOfMessages} messages.", request.NumberOfMessages);
+                });
+            }
             var batchId = Guid.NewGuid();
             var response = new MessageGenerationResponse(batchId, "ProcessingStarted");
 
