@@ -45,11 +45,24 @@ services:
     networks:
       - kafka-network
 
-  consumer-worker:
+  messagebus-consumer:
       build:
         context: . # Crucial: Look at root to see src/MessageBus.Contracts
         dockerfile: src/MessageBus.Consumer/Dockerfile
-      container_name: consumer-worker-app
+      container_name: messagebus-consumer-app
+      environment:
+        - KafkaSettings__BootstrapServers=kafka:29092
+      depends_on:
+        kafka:
+          condition: service_healthy
+      networks:
+        - kafka-network
+
+  messagebus-producer:
+      build:
+        context: . # Crucial: Look at root to see src/MessageBus.Contracts
+        dockerfile: src/MessageBus.Producer/Dockerfile
+      container_name: messagebus-producer-app
       environment:
         - KafkaSettings__BootstrapServers=kafka:29092
       depends_on:
