@@ -10,14 +10,19 @@ public class Worker(IMessageBusConsumer consumer, ILogger<Worker> logger) : Back
         {
             logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             var brokerIsAvailable = await consumer.WaitForBrokerToBeAvailableAsync(stoppingToken);
-            if (!brokerIsAvailable)
+            if (brokerIsAvailable)
+            {
+                logger.LogInformation("Kafka broker is available. Starting to consume messages...");
+                while(!stoppingToken.IsCancellationRequested)
+                {
+                    await consumer.ConsumeAsync(stoppingToken);
+                }
+            }
+            else
             {
                 logger.LogWarning("Kafka broker is not available. Retrying in 5 seconds...");
                 await Task.Delay(5000, stoppingToken);
-                continue;
             }
-            await consumer.ConsumeAsync(stoppingToken);
-            await Task.Delay(5000, stoppingToken);
         }
     }
 }
