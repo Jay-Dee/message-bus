@@ -45,7 +45,7 @@ public class HardCodedMessageBusConsumer : IMessageBusConsumer
                         {
                             await adminClient.CreateTopicsAsync(new TopicSpecification[]
                             {
-                                new TopicSpecification { Name = Topic, NumPartitions = 1, ReplicationFactor = 1 }
+                                new TopicSpecification { Name = Topic, NumPartitions = 2, ReplicationFactor = 1 }
                             });
                             logger.LogInformation("Topic '{Topic}' created successfully.", Topic);
                         }
