@@ -28,7 +28,7 @@ public partial class Program
         }
 
         app.MapHealthChecks("/");
-        app.MapMessageGenerationEndpoints();
+        app.MapMessageGenerationEndpoints(app.Services.GetRequiredService<IProducer<string, string>>());
         SetupSwagger(app);
 
         app.Run();
